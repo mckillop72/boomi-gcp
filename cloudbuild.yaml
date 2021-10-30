@@ -1,0 +1,28 @@
+steps:
+  # create disk
+#  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+#    entrypoint: 'gcloud'
+#    timeout: 240s
+#    args: ['compute', 'disks', 'create', 
+#           '--size=10GB',
+#           '--zone=${_ZONE}',
+#           '--project=${_PROJECT}',
+#           'nfs-disk']
+#    env:
+#      - 'CLOUDSDK_COMPUTE_REGION=${_REGION}'
+#      - 'CLOUDSDK_COMPUTE_ZONE=${_ZONE}'
+  # create cluster
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args: ['beta', 'container', 'clusters', 'create', 
+           '--project=${_PROJECT}',
+           'boomi-${_ENV}',
+           '--zone=${_ZONE}',
+           '--node-locations=${_ZONE}',
+           '--num-nodes=3',
+           '--machine-type=e2-medium',
+           '--disk-type=pd-standard',
+           '--disk-size=100']
+    env:
+      - 'CLOUDSDK_COMPUTE_REGION=${_REGION}'
+      - 'CLOUDSDK_COMPUTE_ZONE=${_ZONE}'      
