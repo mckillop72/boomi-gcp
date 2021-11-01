@@ -1,0 +1,135 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: molecule-set
+  labels:
+    app: molecule
+spec:
+  selector:
+    matchLabels:
+      app: molecule
+  serviceName: "molecule-service"
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: molecule
+    spec:
+      terminationGracePeriodSeconds: 60
+      volumes:
+        - name: molecule-storage
+          persistentVolumeClaim:
+            claimName: nfs-pvc
+        - name: tmpfs
+          emptyDir: {}
+        - name: cgroup
+          hostPath:
+            path: /sys/fs/cgroup
+            type: Directory
+      containers:
+      - image: boomi/molecule:release
+        imagePullPolicy: Always
+        name: atom-node
+        ports:
+        - name: http
+          containerPort: 9090
+          protocol: TCP
+        - name: https
+          containerPort: 9093
+          protocol: TCP
+        lifecycle:
+          preStop:
+            exec:
+              command:
+                - sh
+                - /home/boomi/scaledown.sh
+        resources:
+          limits:
+            cpu: "1000m"
+            memory: "1536Mi"
+          requests:
+            cpu: "500m"
+            memory: "1000Mi"
+        volumeMounts:
+          - mountPath: "/mnt/boomi"
+            name: molecule-storage
+          - name: tmpfs
+            mountPath: "/run"
+          - name: tmpfs
+            mountPath: "/tmp"
+          - name: cgroup
+            mountPath: /sys/fs/cgroup
+        startupProbe:
+          timeoutSeconds: 90
+          failureThreshold: 90
+          exec:
+            command:
+              - sh
+              - /home/boomi/probe.sh
+              - startup
+        readinessProbe:
+          timeoutSeconds: 60
+          periodSeconds: 10
+          initialDelaySeconds: 10
+          exec:
+            command:
+              - sh
+              - /home/boomi/probe.sh
+              - readiness
+        livenessProbe:
+          timeoutSeconds: 60
+          periodSeconds: 60
+          exec:
+            command:
+              - sh
+              - /home/boomi/probe.sh
+              - liveness
+        env:
+        - name: BOOMI_ATOMNAME
+          valueFrom:
+            secretKeyRef:
+              name: boomi-secret
+              key: boomi_atomname
+        - name: ATOM_LOCALHOSTID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: INSTALL_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: boomi-installtoken
+              key: tokenvalue
+        - name: BOOMI_ENVIRONMENTID
+          valueFrom:
+            secretKeyRef:
+              name: boomi-secret
+              key: boomi_environmentid
+        - name: BOOMI_CONTAINERNAME
+          valueFrom:
+            secretKeyRef:
+              name: boomi-secret
+              key: boomi_atomname
+        - name: INSTALLATION_DIRECTORY
+          value: "/mnt/boomi"
+        - name: CONTAINER_PROPERTIES_OVERRIDES
+          value: "com.boomi.container.cloudlet.clusterConfig=UNICAST|com.boomi.container.is.orchestrated.container=true|com.boomi.container.cloudlet.findInitialHostsTimeout=5000|com.boomi.container.elasticity.asyncPollerTimeout=75000|com.boomi.container.elasticity.forceRestartOverride=50000"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: molecule-service
+  labels:
+    app: molecule
+spec:
+  selector:
+    app: molecule
+  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 9090
+    name: http
+  - protocol: TCP
+    port: 443
+    targetPort: 9093
+    name: https
