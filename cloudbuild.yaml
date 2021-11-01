@@ -1,16 +1,13 @@
 steps:
   # create disk
-#  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-#    entrypoint: 'gcloud'
-#    timeout: 240s
-#    args: ['compute', 'disks', 'create', 
-#           '--size=10GB',
-#           '--zone=${_ZONE}',
-#           '--project=${_PROJECT}',
-#           'nfs-disk']
-#    env:
-#      - 'CLOUDSDK_COMPUTE_REGION=${_REGION}'
-#      - 'CLOUDSDK_COMPUTE_ZONE=${_ZONE}'
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args: ['compute', 'disks', 'create', 
+           '--size=10GB',
+           '--project=${_PROJECT}',
+           'nfs-disk']
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=${_ZONE}'      
   # create cluster
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: 'gcloud'
@@ -20,9 +17,68 @@ steps:
            '--zone=${_ZONE}',
            '--node-locations=${_ZONE}',
            '--num-nodes=3',
-           '--machine-type=e2-medium',
+           '--machine-type=e2-standard-4',
            '--disk-type=pd-standard',
            '--disk-size=100']
     env:
-      - 'CLOUDSDK_COMPUTE_REGION=${_REGION}'
       - 'CLOUDSDK_COMPUTE_ZONE=${_ZONE}'      
+  # create k8b secrets from substitutions passed in
+  - name: 'gcr.io/cloud-builders/kubectl'
+    args: ['create', 'secret', 'generic', 'boomi-secret', 
+           '--from-literal=boomi_atomname=mol-gke-${_ENV}',
+           '--from-literal=boomi_username=${_BOOMI_USERNAME}',
+           '--from-literal=boomi_password=${_BOOMI_PASSWORD}',
+           '--from-literal=boomi_accountid=${_BOOMI_ACCOUNTID}',
+           '--from-literal=boomi_environmentid=${_BOOMI_ENVIRONMENTID}']
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=${_ZONE}'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=boomi-${_ENV}'
+  # create k8b secret with installation token from Boomi Platform API call
+  - name: 'gcr.io/cloud-builders/kubectl'
+    entrypoint: 'bash'
+    args: ['-c', 'BASIC_AUTH_TOKEN=$(echo -n "${_BOOMI_USERNAME}:${_BOOMI_PASSWORD}"|base64 -w 0) && INSTALLTOKEN=$$(curl --request POST "https://api.boomi.com/api/rest/v1/${_BOOMI_ACCOUNTID}/InstallerToken" --header "Authorization: Basic $$BASIC_AUTH_TOKEN" --header "Content-Type: application/xml" --data-raw "<bns:InstallerToken xmlns:bns=''http://api.platform.boomi.com/'' xmlns:xsi=''http://www.w3.org/2001/XMLSchema-instance'' installType=''MOLECULE'' durationMinutes=''30''/>"|grep -oP "token=\".*\" expiration"|cut -c8-52) && gcloud container clusters get-credentials boomi-${_ENV} --zone ${_ZONE} && kubectl create secret generic boomi-installtoken --from-literal=tokenvalue=$$INSTALLTOKEN']
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=${_ZONE}'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=boomi-${_ENV}'      
+  # create NFS deployment
+  - name: 'gcr.io/cloud-builders/kubectl'
+    args: ['apply', '-f', 'k8b/nfs.yaml']
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=${_ZONE}'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=boomi-${_ENV}'
+  # create NFS service
+  - name: 'gcr.io/cloud-builders/kubectl'
+    args: ['apply', '-f', 'k8b/nfs_svc.yaml']
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=${_ZONE}'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=boomi-${_ENV}'
+  # create NFS deployment
+  - name: 'gcr.io/cloud-builders/kubectl'
+    args: ['apply', '-f', 'k8b/nfs.yaml']
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=${_ZONE}'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=boomi-${_ENV}'
+  # create NFS service
+  - name: 'gcr.io/cloud-builders/kubectl'
+    args: ['apply', '-f', 'k8b/nfs_svc.yaml']
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=${_ZONE}'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=boomi-${_ENV}'
+  # create persistent volume and claim
+  - name: 'gcr.io/cloud-builders/kubectl'
+    args: ['apply', '-f', 'k8b/pvc.yaml']
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=${_ZONE}'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=boomi-${_ENV}'
+  # create molecule stateful set and load balancer
+  - name: 'gcr.io/cloud-builders/kubectl'
+    args: ['apply', '-f', 'k8b/mol.yaml']
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=${_ZONE}'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=boomi-${_ENV}'      
+  # create autoscaler
+  - name: 'gcr.io/cloud-builders/kubectl'
+    args: ['apply', '-f', 'k8b/hpa.yaml']
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=${_ZONE}'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=boomi-${_ENV}'      
