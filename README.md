@@ -25,7 +25,11 @@ You must have a Boomi account with unused molecule licenses.
    gcloud services enable compute.googleapis.com deploymentmanager.googleapis.com cloudbuild.googleapis.com container.googleapis.com gkeconnect.googleapis.com gkehub.googleapis.com
    ```
 
-1. Copy the service account number (as in nnn@cloudbuild.gserviceaccount.com) from the GCP console (IAM & Admin>IAM)
+1. Identify service account number (as in **nnn**@cloudbuild.gserviceaccount.com)
+
+   ```sh
+   gcloud projects get-iam-policy [project-id]
+   ```
 
 1. Add IAM roles to your project's Cloud Build service account:
 
