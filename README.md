@@ -5,6 +5,8 @@ The configuration is inteneded for prototyping and is not sized or secured for p
 
 You must have a Boomi account with unused molecule licenses.
 
+The Boomi platform password you use will be visible in Cloud Build history after execution.
+
 ## Steps
 
 1. Create a Google Cloud Platform account if you don't have one. This deployment should work on the free tier.
