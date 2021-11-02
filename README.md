@@ -49,7 +49,7 @@ You must have a Boomi account with unused molecule licenses.
      gcloud builds submit --substitutions=_PROJECT="[project-id]",_ZONE="[gcp-zone-id]",_ENV=dev,_BOOMI_USERNAME="[username]",_BOOMI_PASSWORD="[password]",_BOOMI_ACCOUNTID="[account-id]",_BOOMI_ENVIRONMENTID="[environment-guid]"
      ```
 
-1. If the build is successful, the new runtime should be visible in the Boomi UI within ten minutes.
+1. If the build is successful, the new runtime should be visible in the Boomi UI within ten minutes from the start time.
 
 1. To test web services, deploy a Shared Web Services listener process to your environment and obtain the external IP from kubectl or the GCP console (Google Kubernetes Engine>Services & Ingress).
 
