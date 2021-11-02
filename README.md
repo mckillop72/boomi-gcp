@@ -1,5 +1,7 @@
 # boomi-gcp
-Build Boomi runtime on Google Cloud Platform Kubernetes Engine with an external load balancer and autoscaler. The configuration is inteneded for prototyping and is not sized or secured for production (i.e. no API gateway).
+Google Cloud Builder deployment of Boomi Molecule to Google Kubernetes Engine with an external load balancer and autoscaler.
+
+The configuration is inteneded for prototyping and is not sized or secured for production (i.e. no API gateway).
 
 You must have a Boomi account with unused molecule licenses.
 
@@ -27,11 +29,12 @@ The steps below are for manual execution but the same code can be used with a Go
 
 1. Copy the service account number (as in nnn@cloudbuild.gserviceaccount.com) from the GCP console (IAM & Admin>IAM)
 
-1. Add the IAM SecurityAdmin and Compute Instance Admin V1 roles to your project's service accounts:
+1. Add IAM roles to your project's Cloud Build service account:
 
    ```sh
-     gcloud projects add-iam-policy-binding [project-id] --member=serviceAccount:[service-account-no]@cloudservices.gserviceaccount.com --role=roles/iam.securityAdmin
 	 gcloud projects add-iam-policy-binding [project-id] --member=serviceAccount:[service-account-no]@cloudbuild.gserviceaccount.com --role=roles/compute.instanceAdmin.v1
+	 gcloud projects add-iam-policy-binding [project-id] --member=serviceAccount:[service-account-no]@cloudbuild.gserviceaccount.com --role=roles/container.admin
+     gcloud projects add-iam-policy-binding [project-id] --member=serviceAccount:[service-account-no]@cloudbuild.gserviceaccount.com --role=roles/iam.serviceAccountUser
      ```
 
 1. Fork this Github repository and GIT clone the repository to your local PC
