@@ -5,8 +5,6 @@ The configuration is inteneded for prototyping and is not sized or secured for p
 
 You must have a Boomi account with unused molecule licenses.
 
-The steps below are for manual execution but the same code can be used with a Google Cloud Build trigger.
-
 ## Steps
 
 1. Create a Google Cloud Platform account if you don't have one. This deployment should work on the free tier.
@@ -37,9 +35,9 @@ The steps below are for manual execution but the same code can be used with a Go
      gcloud projects add-iam-policy-binding [project-id] --member=serviceAccount:[service-account-no]@cloudbuild.gserviceaccount.com --role=roles/iam.serviceAccountUser
      ```
 
-1. Fork this Github repository and GIT clone the repository to your local PC
+1. Fork this Github repository 
 
-1. In Google Cloud SDK Shell cd to the local repository folder and submit the build, replacing the substition values.
+1. Submit the build using Google Cloud SDK Shell (GIT clone the repository to your local PC, cd to the local repository folder and execute the command below, replacing the substition values) or a Google Cloud trigger.
 
    For zone use an ID like "asia-southeast1-a".
 
