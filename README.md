@@ -32,7 +32,7 @@ The steps below are for manual execution but the same code can be used with a Go
    ```sh
      gcloud projects add-iam-policy-binding [project-id] --member=serviceAccount:[service-account-no]@cloudservices.gserviceaccount.com --role=roles/iam.securityAdmin
 	 gcloud projects add-iam-policy-binding [project-id] --member=serviceAccount:[service-account-no]@cloudbuild.gserviceaccount.com --role=roles/compute.instanceAdmin.v1
-     ```sh
+     ```
 
 1. Fork this Github repository and GIT clone the repository to your local PC
 
@@ -40,7 +40,7 @@ The steps below are for manual execution but the same code can be used with a Go
 
    ```sh
      gcloud builds submit --substitutions=_PROJECT="[project-id]",_ZONE="australia-southeast1-a",_ENV=dev,_BOOMI_USERNAME="BOOMI_TOKEN.james_m_hutton@dell.com",_BOOMI_PASSWORD="b9b9d894-7ea9-4516-9bcf-79d1630b95ac",_BOOMI_ACCOUNTID="boomi_jameshutton-N7LJSM",_BOOMI_ENVIRONMENTID="40590140-dc5b-4c49-89f9-47f99641a0d4"
-     ```sh
+     ```
 
 1. If the build is successful, the new runtime should be visible in the Boomi UI within ten minutes.
 
