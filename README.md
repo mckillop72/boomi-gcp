@@ -40,8 +40,11 @@ The steps below are for manual execution but the same code can be used with a Go
 1. Fork this Github repository and GIT clone the repository to your local PC
 
 1. In Google Cloud SDK Shell cd to the local repository folder and submit the build, replacing the substition values.
+
    e.g. _ZONE="asia-southeast1-a",_ENV="dev",_BOOMI_USERNAME="BOOMI_TOKEN.me@myorg.com",_BOOMI_PASSWORD="[API Token]".
+
    Sign-on username and password will not work if Single Sign On or Two Factor Authentication is enabled in your Boomi account).
+
    _ENV is used for object naming only and does not need to correspond to a GCP environment
 
    ```sh
