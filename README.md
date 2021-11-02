@@ -41,14 +41,14 @@ The steps below are for manual execution but the same code can be used with a Go
 
 1. In Google Cloud SDK Shell cd to the local repository folder and submit the build, replacing the substition values.
 
-   e.g. _ZONE="asia-southeast1-a",_ENV="dev",_BOOMI_USERNAME="BOOMI_TOKEN.me@myorg.com",_BOOMI_PASSWORD="[API Token]".
+   For zone use an ID like "asia-southeast1-a".
 
-   Sign-on username and password will not work if Single Sign On or Two Factor Authentication is enabled in your Boomi account).
-
-   _ENV is used for object naming only and does not need to correspond to a GCP environment
+   Sign-on username and password will not work if Single Sign On or Two Factor Authentication is enabled in your Boomi account so instead use _BOOMI_USERNAME="BOOMI_TOKEN.me@myorg.com",_BOOMI_PASSWORD="[API Token]".
+   
+   The Boomi Platform UI shows account ID (Settings>Account Information and Setup) and environment ID (Management>Atom Management).
 
    ```sh
-     gcloud builds submit --substitutions=_PROJECT="[project-id]",_ZONE="australia-southeast1-a",_ENV=dev,_BOOMI_USERNAME="BOOMI_TOKEN.james_m_hutton@dell.com",_BOOMI_PASSWORD="b9b9d894-7ea9-4516-9bcf-79d1630b95ac",_BOOMI_ACCOUNTID="boomi_jameshutton-N7LJSM",_BOOMI_ENVIRONMENTID="40590140-dc5b-4c49-89f9-47f99641a0d4"
+     gcloud builds submit --substitutions=_PROJECT="[project-id]",_ZONE="[gcp-zone-id]",_ENV=dev,_BOOMI_USERNAME="[username]",_BOOMI_PASSWORD="[password]",_BOOMI_ACCOUNTID="[account-id]",_BOOMI_ENVIRONMENTID="[environment-guid]"
      ```
 
 1. If the build is successful, the new runtime should be visible in the Boomi UI within ten minutes.
