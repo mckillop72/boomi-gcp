@@ -53,6 +53,10 @@ The steps below are for manual execution but the same code can be used with a Go
 
 1. If the build is successful, the new runtime should be visible in the Boomi UI within ten minutes.
 
-1. To test web services, deploy a Shared Web Services listener process to your environment and obtain the external IP from kubectl or the GCP console (Google Kubernetes Engine>Services & Ingress). E.g. http://144.155.122.133/ws/simple/myTestGet. HTTP only is configured and there is no authenitcation.
+1. To test web services, deploy a Shared Web Services listener process to your environment and obtain the external IP from kubectl or the GCP console (Google Kubernetes Engine>Services & Ingress).
+
+   The URL will following this format: http://144.155.122.133/ws/simple/myTestGet.
+   
+   HTTP only is configured and there is no authentication.
 
 1. Scale down or delete the GKE cluster when not in use to avoid costs. If deleting the cluster, manually delete the molecule from Boomi Atom Management to avoid exceeding Molecule licenses
